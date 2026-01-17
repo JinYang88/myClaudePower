@@ -42,22 +42,95 @@ check_dependencies() {
     fi
 }
 
-check_superpowers() {
-    local superpowers_dir="$CLAUDE_DIR/plugins/cache/superpowers-marketplace"
-    if [ ! -d "$superpowers_dir" ]; then
-        warn "Superpowers plugin not found!"
-        echo ""
-        echo -e "${YELLOW}myClaudePower requires the Superpowers plugin for full functionality.${NC}"
-        echo -e "${YELLOW}After installation, run Claude Code and install it:${NC}"
-        echo ""
-        echo "  claude"
-        echo "  /plugin install superpowers@superpowers-marketplace"
-        echo ""
-        NEEDS_SUPERPOWERS=true
-    else
-        info "Superpowers plugin found"
-        NEEDS_SUPERPOWERS=false
+install_superpowers() {
+    local SUPERPOWERS_VERSION="4.0.3"
+    local SUPERPOWERS_REPO="https://github.com/obra/superpowers"
+    local SUPERPOWERS_DIR="$CLAUDE_DIR/plugins/cache/superpowers-marketplace/superpowers/$SUPERPOWERS_VERSION"
+    local PLUGINS_JSON="$CLAUDE_DIR/plugins/installed_plugins.json"
+
+    # Check if already installed
+    if [ -d "$SUPERPOWERS_DIR" ]; then
+        info "Superpowers plugin already installed"
+        return
     fi
+
+    info "Installing Superpowers plugin..."
+
+    # Create directory structure
+    mkdir -p "$CLAUDE_DIR/plugins/cache/superpowers-marketplace/superpowers"
+    mkdir -p "$CLAUDE_DIR/plugins"
+
+    # Download from GitHub
+    local TMP_DIR=$(mktemp -d)
+    if command -v git &> /dev/null; then
+        git clone --depth 1 "$SUPERPOWERS_REPO" "$TMP_DIR/superpowers" 2>/dev/null || {
+            warn "Git clone failed, trying curl..."
+            curl -sL "$SUPERPOWERS_REPO/archive/refs/heads/main.tar.gz" | tar -xz -C "$TMP_DIR"
+            mv "$TMP_DIR/superpowers-main" "$TMP_DIR/superpowers"
+        }
+    else
+        curl -sL "$SUPERPOWERS_REPO/archive/refs/heads/main.tar.gz" | tar -xz -C "$TMP_DIR"
+        mv "$TMP_DIR/superpowers-main" "$TMP_DIR/superpowers"
+    fi
+
+    # Move to correct location
+    mv "$TMP_DIR/superpowers" "$SUPERPOWERS_DIR"
+    rm -rf "$TMP_DIR"
+
+    # Update installed_plugins.json
+    local INSTALL_DATE=$(date -u +"%Y-%m-%dT%H:%M:%S.000Z")
+    if [ ! -f "$PLUGINS_JSON" ]; then
+        cat > "$PLUGINS_JSON" << EOJSON
+{
+  "version": 2,
+  "plugins": {}
+}
+EOJSON
+    fi
+
+    # Add superpowers entry using python/node or simple append
+    if command -v python3 &> /dev/null; then
+        python3 << EOPY
+import json
+import os
+
+plugins_file = "$PLUGINS_JSON"
+with open(plugins_file, 'r') as f:
+    data = json.load(f)
+
+if 'plugins' not in data:
+    data['plugins'] = {}
+
+data['plugins']['superpowers@superpowers-marketplace'] = [{
+    "scope": "user",
+    "installPath": "$SUPERPOWERS_DIR",
+    "version": "$SUPERPOWERS_VERSION",
+    "installedAt": "$INSTALL_DATE",
+    "lastUpdated": "$INSTALL_DATE"
+}]
+
+with open(plugins_file, 'w') as f:
+    json.dump(data, f, indent=2)
+EOPY
+    elif command -v node &> /dev/null; then
+        node << EOJS
+const fs = require('fs');
+const data = JSON.parse(fs.readFileSync('$PLUGINS_JSON', 'utf8'));
+if (!data.plugins) data.plugins = {};
+data.plugins['superpowers@superpowers-marketplace'] = [{
+    scope: 'user',
+    installPath: '$SUPERPOWERS_DIR',
+    version: '$SUPERPOWERS_VERSION',
+    installedAt: '$INSTALL_DATE',
+    lastUpdated: '$INSTALL_DATE'
+}];
+fs.writeFileSync('$PLUGINS_JSON', JSON.stringify(data, null, 2));
+EOJS
+    else
+        warn "Could not update plugins.json (no python3 or node). Plugin may not be recognized."
+    fi
+
+    info "Superpowers plugin installed successfully"
 }
 
 backup_claude_md() {
@@ -124,28 +197,39 @@ main() {
     detect_platform
     check_dependencies
     mkdir -p "$CLAUDE_DIR"
-    check_superpowers
     echo "# myClaudePower manifest - $(date)" > "$MANIFEST_FILE"
+
+    info "Installing Superpowers plugin..."
+    install_superpowers
+
     backup_claude_md
     merge_claude_md "src/CLAUDE.md"
     echo "CLAUDE.md" >> "$MANIFEST_FILE"
-    info "Installing skills..."
+
+    info "Installing myclaude skills..."
     install_files "src/skills" "$CLAUDE_DIR/skills" "skills"
-    info "Installing commands..."
+
+    info "Installing myclaude commands..."
     install_files "src/commands" "$CLAUDE_DIR/commands" "commands"
-    info "Installing agents..."
+
+    info "Installing myclaude agents..."
     install_files "src/agents" "$CLAUDE_DIR/agents" "agents"
+
     info "Installing codeagent-wrapper..."
     install_binary
+
     echo "$VERSION" > "$VERSION_FILE"
+
+    echo ""
     info "Installation complete!"
     echo ""
-    if [ "$NEEDS_SUPERPOWERS" = true ]; then
-        echo -e "${YELLOW}[ACTION REQUIRED]${NC} Install Superpowers plugin:"
-        echo "  1. Run: claude"
-        echo "  2. Type: /plugin install superpowers@superpowers-marketplace"
-        echo ""
-    fi
+    echo "  Installed:"
+    echo "    - Superpowers plugin (brainstorming, TDD, etc.)"
+    echo "    - myclaude skills (codeagent, omo, sparv, etc.)"
+    echo "    - myclaude commands (/full-dev, /dev, /debug, etc.)"
+    echo "    - myclaude agents (bmad-*, bugfix, requirements-*, etc.)"
+    echo "    - codeagent-wrapper binary"
+    echo ""
     info "Usage: claude then /full-dev \"your feature\""
 }
 

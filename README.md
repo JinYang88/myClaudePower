@@ -14,11 +14,6 @@ curl -fsSL https://raw.githubusercontent.com/JinYang88/myClaudePower/main/instal
 
 - **Claude Code CLI** (required) - `npm install -g @anthropic-ai/claude-code`
 - **Codex CLI** (recommended) - `npm install -g @openai/codex`
-- **Superpowers plugin** (required) - Install after setup:
-  ```
-  claude
-  /plugin install superpowers@superpowers-marketplace
-  ```
 
 ## What Gets Installed
 
@@ -28,7 +23,7 @@ curl -fsSL https://raw.githubusercontent.com/JinYang88/myClaudePower/main/instal
 - **Agents**: bmad-*, bugfix, requirements-*, etc. (17 total)
 - **Binary**: codeagent-wrapper (multi-backend AI executor)
 
-### From [Superpowers](https://github.com/obra/superpowers) (installed separately)
+### From [Superpowers](https://github.com/obra/superpowers) (auto-installed)
 - **Skills**: brainstorming, writing-plans, verification-before-completion, TDD, systematic-debugging, etc.
 
 ## Usage
