@@ -42,6 +42,24 @@ check_dependencies() {
     fi
 }
 
+check_superpowers() {
+    local superpowers_dir="$CLAUDE_DIR/plugins/cache/superpowers-marketplace"
+    if [ ! -d "$superpowers_dir" ]; then
+        warn "Superpowers plugin not found!"
+        echo ""
+        echo -e "${YELLOW}myClaudePower requires the Superpowers plugin for full functionality.${NC}"
+        echo -e "${YELLOW}After installation, run Claude Code and install it:${NC}"
+        echo ""
+        echo "  claude"
+        echo "  /plugin install superpowers@superpowers-marketplace"
+        echo ""
+        NEEDS_SUPERPOWERS=true
+    else
+        info "Superpowers plugin found"
+        NEEDS_SUPERPOWERS=false
+    fi
+}
+
 backup_claude_md() {
     if [ -f "$CLAUDE_DIR/CLAUDE.md" ]; then
         BACKUP_FILE="$CLAUDE_DIR/CLAUDE.md.backup.$(date +%Y%m%d%H%M%S)"
@@ -106,6 +124,7 @@ main() {
     detect_platform
     check_dependencies
     mkdir -p "$CLAUDE_DIR"
+    check_superpowers
     echo "# myClaudePower manifest - $(date)" > "$MANIFEST_FILE"
     backup_claude_md
     merge_claude_md "src/CLAUDE.md"
@@ -121,6 +140,12 @@ main() {
     echo "$VERSION" > "$VERSION_FILE"
     info "Installation complete!"
     echo ""
+    if [ "$NEEDS_SUPERPOWERS" = true ]; then
+        echo -e "${YELLOW}[ACTION REQUIRED]${NC} Install Superpowers plugin:"
+        echo "  1. Run: claude"
+        echo "  2. Type: /plugin install superpowers@superpowers-marketplace"
+        echo ""
+    fi
     info "Usage: claude then /full-dev \"your feature\""
 }
 
