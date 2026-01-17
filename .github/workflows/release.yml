@@ -1,0 +1,41 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create release tarball
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/}
+          mkdir -p dist
+          tar -czvf dist/myClaudePower-$VERSION.tar.gz \
+            --exclude='.git' \
+            --exclude='dist' \
+            --exclude='*.tar.gz' \
+            --exclude='docs/plans' \
+            --exclude='calc' \
+            --exclude='tests' \
+            .
+
+      - name: Create checksums
+        run: |
+          cd dist
+          sha256sum * > checksums.txt
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            dist/*.tar.gz
+            dist/checksums.txt
+          generate_release_notes: true

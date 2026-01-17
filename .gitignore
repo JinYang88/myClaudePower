@@ -1,0 +1,25 @@
+# Test files from CLI calculator demo
+calc/
+tests/
+*.pyc
+__pycache__/
+.pytest_cache/
+*.egg-info/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.log
+dist/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Coverage
+.coverage
+htmlcov/
