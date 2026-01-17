@@ -1,8 +1,8 @@
 # myClaudePower
 
-> Supercharge Claude Code with [Superpowers](https://github.com/obra/superpowers) + [myclaude](https://github.com/cexll/myclaude) integration
+> One-click installer for [Superpowers](https://github.com/obra/superpowers) + [myclaude](https://github.com/cexll/myclaude) integration
 
-One-click installation combining two powerful Claude Code enhancement systems.
+Combines two powerful Claude Code enhancement systems with a single command.
 
 ## Installation
 
@@ -13,18 +13,22 @@ curl -fsSL https://raw.githubusercontent.com/JinYang88/myClaudePower/main/instal
 ## Prerequisites
 
 - **Claude Code CLI** (required) - `npm install -g @anthropic-ai/claude-code`
+- **Python3** (required) - for myclaude installer
 - **Codex CLI** (recommended) - `npm install -g @openai/codex`
 
 ## What Gets Installed
 
-### From [myclaude](https://github.com/cexll/myclaude)
-- **Skills**: codeagent, omo, sparv, product-requirements, prototype-prompt-generator
-- **Commands**: /full-dev, /dev, /debug, /code, /review, etc. (15 total)
-- **Agents**: bmad-*, bugfix, requirements-*, etc. (17 total)
-- **Binary**: codeagent-wrapper (multi-backend AI executor)
+The installer downloads the **latest versions** from GitHub:
 
-### From [Superpowers](https://github.com/obra/superpowers) (auto-installed)
+### [Superpowers](https://github.com/obra/superpowers) by @obra
 - **Skills**: brainstorming, writing-plans, verification-before-completion, TDD, systematic-debugging, etc.
+- Design-first methodology with quality review
+
+### [myclaude](https://github.com/cexll/myclaude) by @cexll
+- **Skills**: codeagent, omo, sparv, product-requirements
+- **Commands**: /full-dev, /dev, /debug, /code, /review, etc.
+- **Agents**: bmad-*, bugfix, requirements-*, etc.
+- **Binary**: codeagent-wrapper (multi-backend AI executor)
 
 ## Usage
 
@@ -40,9 +44,6 @@ claude
 
 # Systematic debugging
 /debug "fix authentication error"
-
-# Code review
-/review
 ```
 
 ## How It Works
@@ -60,8 +61,6 @@ claude
 ```bash
 curl -fsSL https://raw.githubusercontent.com/JinYang88/myClaudePower/main/uninstall.sh | bash
 ```
-
-Your original files are preserved.
 
 ## Credits
 
