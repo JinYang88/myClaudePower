@@ -5,7 +5,7 @@
 ## Installation
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/jinyang88/myClaudePower/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/JinYang88/myClaudePower/main/install.sh | bash
 ```
 
 ## Prerequisites
@@ -31,7 +31,7 @@ claude
 ## Uninstall
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/jinyang88/myClaudePower/main/uninstall.sh | bash
+curl -fsSL https://raw.githubusercontent.com/JinYang88/myClaudePower/main/uninstall.sh | bash
 ```
 
 ## License
